@@ -1,0 +1,74 @@
+@startuml 阶段内
+actor 小朋友
+participant "语音助手" as VoiceAssistant
+participant "AI 评分者" as AIScorer
+participant "AI 指导者" as AIGuide
+
+group 每一阶段
+    小朋友 -> AIGuide: 开始学习
+    AIGuide -> 小朋友: 提示问题(例如: 这三张图片分别有什么内容？)
+
+    alt 小朋友需要帮助
+        小朋友 -> AIGuide: 点击问题
+        AIGuide -> 小朋友: 提供提示词，帮助组织语言
+    end
+
+    小朋友 -> VoiceAssistant: 点击语音按钮，开始讲述
+    VoiceAssistant -> AIScorer: 提交讲述内容
+    AIScorer -> AIGuide: 传递得分、优缺点等信息
+    alt 得分 > 60
+        AIGuide -> 小朋友: 提示进入下一阶段或结束
+    else
+        AIGuide -> 小朋友: 给出进一步提示问题
+    end
+end
+
+@enduml
+
+@startuml 登录选择
+actor 小朋友
+participant "LoginController" as 控制器
+participant "UserService" as 用户服务
+participant "PasswordEncoder" as 密码加密服务
+participant "JWTService" as JWT服务
+database "Database" as 数据库
+
+alt 小朋友已注册
+    小朋友 -> 控制器: 输入账号和密码
+    控制器 -> 用户服务: 校验用户是否存在
+    用户服务 -> 数据库: 查询用户信息
+    数据库 -> 用户服务: 返回用户信息
+    用户服务 -> 密码加密服务: 验证密码(bcrypt)
+    alt 验证通过
+        用户服务 -> JWT服务: 生成JWT
+        JWT服务 -> 控制器: 返回JWT令牌
+        控制器 -> 小朋友: 登录成功, 返回主界面
+    else 验证失败
+        控制器 -> 小朋友: 提示登录失败
+        小朋友 -> 控制器: 结束操作
+    end
+else 未注册
+    控制器 -> 小朋友: 提示需要注册
+    小朋友 -> 控制器: 提交注册信息
+    控制器 -> 用户服务: 检查是否已有账号
+    用户服务 -> 数据库: 查询用户信息
+    数据库 -> 用户服务: 无记录, 允许注册
+    用户服务 -> 密码加密服务: 加密密码(bcrypt)
+    用户服务 -> 数据库: 保存用户信息
+    用户服务 -> JWT服务: 生成JWT
+    JWT服务 -> 控制器: 返回JWT令牌
+    控制器 -> 小朋友: 注册成功, 自动登录, 返回主界面
+end
+
+控制器 -> 小朋友: 显示任务选择界面
+小朋友 -> 控制器: 选择任务 (指导学习或测试评分)
+
+alt 选择指导学习
+    控制器 -> 小朋友: 进入指导学习模式
+else 选择测试评分
+    控制器 -> 小朋友: 进入测试评分模式
+end
+
+控制器 -> 小朋友: 开始任务
+小朋友 -> 控制器: 任务进行中
+@enduml

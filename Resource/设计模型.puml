@@ -1,0 +1,148 @@
+@startuml aiGuide
+
+interface AiGuideStrategy {
+    +AiGuideResponseDTO initialGuide(ImageStoryTaskDTO task)
+    +AiGuideResponseDTO responseGuide(AiEvaluateResponseDTO evaluateResult, ImageStoryTaskDTO task)
+}
+
+class EleganceGuideStrategy {
+    +AiGuideResponseDTO initialGuide(ImageStoryTaskDTO task)
+    +AiGuideResponseDTO responseGuide(AiEvaluateResponseDTO evaluateResult, ImageStoryTaskDTO task)
+}
+
+class IntegrityGuideStrategy {
+    +AiGuideResponseDTO initialGuide(ImageStoryTaskDTO task)
+    +AiGuideResponseDTO responseGuide(AiEvaluateResponseDTO evaluateResult, ImageStoryTaskDTO task)
+}
+
+class LogicGuideStrategy {
+    +AiGuideResponseDTO initialGuide(ImageStoryTaskDTO task)
+    +AiGuideResponseDTO responseGuide(AiEvaluateResponseDTO evaluateResult, ImageStoryTaskDTO task)
+}
+
+class AiGuideStrategyFactory {
+    +static AiGuideStrategy getStrategy(int phase)
+}
+
+interface GuideUtil {
+    +AiGuideResponseDTO firstGuide(ImageStoryTaskDTO task)
+    +AiGuideResponseDTO guideToResponse(ImageStoryTaskDTO task, AiEvaluateResponseDTO response)
+}
+
+class GuideUtilImpl {
+    +AiGuideResponseDTO firstGuide(ImageStoryTaskDTO task)
+    +AiGuideResponseDTO guideToResponse(ImageStoryTaskDTO task, AiEvaluateResponseDTO response)
+}
+
+class AiService {
+    +Map<String, Object> aiEvaluate(String response, ImageStoryTaskDTO task)
+    +Map<String, Object> aiGuide(ChildResponseDTO response, ImageStoryTaskDTO task)
+}
+
+class SimpleAiImpl {
+    +Map<String, Object> aiEvaluate(String response, ImageStoryTaskDTO task)
+    +Map<String, Object> aiGuide(ChildResponseDTO response, ImageStoryTaskDTO task)
+    -Map<String, Object> EleganceEvaluate(String response, ImageStoryTaskDTO task)
+    -Map<String, Object> IntegrityEvaluate(String response, ImageStoryTaskDTO task)
+    -Map<String, Object> LogicEvaluate(String response, ImageStoryTaskDTO task)
+}
+
+AiGuideStrategy <|.. EleganceGuideStrategy
+AiGuideStrategy <|.. IntegrityGuideStrategy
+AiGuideStrategy <|.. LogicGuideStrategy
+GuideUtil <|.. GuideUtilImpl
+AiGuideStrategyFactory -- AiGuideStrategy : creates
+AiService <|.. SimpleAiImpl
+SimpleAiImpl --> GuideUtilImpl : uses
+GuideUtilImpl --> AiGuideStrategyFactory : uses
+
+@enduml
+
+@startuml aiEvaluate
+
+interface EvaluationUtil {
+    +AiEvaluateResponseDTO evaluate(ChildResponseDTO response, ImageStoryTaskDTO task)
+}
+
+class EleganceUtil {
+    +AiEvaluateResponseDTO evaluate(ChildResponseDTO response, ImageStoryTaskDTO task)
+}
+
+class IntegrityUtil {
+    +AiEvaluateResponseDTO evaluate(ChildResponseDTO response, ImageStoryTaskDTO task)
+}
+
+class LogicUtil {
+    +AiEvaluateResponseDTO evaluate(ChildResponseDTO response, ImageStoryTaskDTO task)
+}
+
+class EvaluationUtilFactory {
+    +static EvaluationUtil getEvaluator(int phase)
+}
+
+interface AiService {
+    +Map<String, Object> aiEvaluate(String response, ImageStoryTaskDTO task)
+    +Map<String, Object> aiGuide(ChildResponseDTO response, ImageStoryTaskDTO task)
+}
+
+class SimpleAiImpl {
+    +Map<String, Object> aiEvaluate(String response, ImageStoryTaskDTO task)
+    +Map<String, Object> aiGuide(ChildResponseDTO response, ImageStoryTaskDTO task)
+    -Map<String, Object> EleganceEvaluate(String response, ImageStoryTaskDTO task)
+    -Map<String, Object> IntegrityEvaluate(String response, ImageStoryTaskDTO task)
+    -Map<String, Object> LogicEvaluate(String response, ImageStoryTaskDTO task)
+}
+
+EvaluationUtil <|.. EleganceUtil
+EvaluationUtil <|.. IntegrityUtil
+EvaluationUtil <|.. LogicUtil
+EvaluationUtilFactory -- EvaluationUtil : creates
+AiService <|.. SimpleAiImpl
+SimpleAiImpl --> EvaluationUtilFactory : uses
+
+@enduml
+
+@startuml aiGuideImpl
+
+interface AiGuideStrategy {
+    +AiGuideResponseDTO initialGuide(task: ImageStoryTaskDTO): AiGuideResponseDTO
+    +AiGuideResponseDTO responseGuide(evaluateResult: AiEvaluateResponseDTO, task: ImageStoryTaskDTO): AiGuideResponseDTO
+}
+
+class EleganceGuideStrategy {
+    +AiGuideResponseDTO initialGuide(task: ImageStoryTaskDTO): AiGuideResponseDTO
+    +AiGuideResponseDTO responseGuide(evaluateResult: AiEvaluateResponseDTO, task: ImageStoryTaskDTO): AiGuideResponseDTO
+}
+
+class IntegrityGuideStrategy {
+    +AiGuideResponseDTO initialGuide(task: ImageStoryTaskDTO): AiGuideResponseDTO
+    +AiGuideResponseDTO responseGuide(evaluateResult: AiEvaluateResponseDTO, task: ImageStoryTaskDTO): AiGuideResponseDTO
+}
+
+class LogicGuideStrategy {
+    +AiGuideResponseDTO initialGuide(task: ImageStoryTaskDTO): AiGuideResponseDTO
+    +AiGuideResponseDTO responseGuide(evaluateResult: AiEvaluateResponseDTO, task: ImageStoryTaskDTO): AiGuideResponseDTO
+}
+
+AiGuideStrategy <|.. EleganceGuideStrategy : implements
+AiGuideStrategy <|.. IntegrityGuideStrategy : implements
+AiGuideStrategy <|.. LogicGuideStrategy : implements
+
+EleganceGuideStrategy --> GlmGenerator : uses
+IntegrityGuideStrategy --> GlmGenerator : uses
+LogicGuideStrategy --> GlmGenerator : uses
+
+class GlmGenerator {
+    +ChatMessage generateResponse(message: String): String
+    +ChatMessage doRequest(aiChatMessages: List<ChatMessage>, stream: Boolean, temperature: Float): String
+    +ChatMessage doRequest(systemMessage: String, userMessage: String, stream: Boolean, temperature: Float): String
+    +ChatMessage doSyncRequest(systemMessage: String, userMessage: String, temperature: Float): String
+    +ChatMessage doSyncStableRequest(systemMessage: String, userMessage: String): String
+    +ChatMessage doSyncUnStableRequest(systemMessage: String, userMessage: String): String
+    +Flowable<ModelData> doStreamRequest(aiChatMessages: List<ChatMessage>, temperature: Float): Flowable<ModelData>
+    +Flowable<ModelData> doStreamRequest(systemMessage: String, userMessage: String, temperature: Float): Flowable<ModelData>
+}
+
+@enduml
+
+
